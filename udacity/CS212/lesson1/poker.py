@@ -53,6 +53,34 @@ def hand_rank(hand):
     else:
         return (0, ranks)
 
+def group(items):
+    "Return a list of [(count, x) ..], highest count first, then highest x first."
+    groups = [(items.count(x), x) for x in set(items)]
+    return sorted(groups, reverse=True)
+
+def unzip(pairs):
+    return zip(*pairs)
+
+def better_hand_rank(hand):
+    "Return a value indicating how high the hand ranks"
+    groups = group(['xx23456789JQKA'.index(r) for r,s in hand])
+    counts, ranks = unzip(groups)
+    if ranks == (14, 5, 4, 3, 2):
+        ranks = (5, 4, 3, 2, 1)
+
+    straight = len(ranks) == 5 and max(ranks) - min(ranks) == 4
+    flush = len(set([s for r,s in hand])) == 1
+    return (9 if (5,) == counts else
+            8 if straight and flush else
+            7 if (4, 1) == counts else
+            6 if (3, 2) == counts else
+            5 if flush else
+            4 if straight else
+            3 if (3, 1, 1) == counts else
+            2 if (2, 1, 1) == counts else
+            1 if (2, 1, 1, 1) == counts else
+            0), ranks)
+
 def allmax(iterable, key=None):
     "Return a list of all items equal to the max of the iterable"
     key = key or (lambda x: x)
