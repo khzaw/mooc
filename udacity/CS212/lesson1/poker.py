@@ -1,6 +1,5 @@
 import random
 
-
 def card_ranks(cards):
     "Return a list of the ranks, sorted with higher first."
     ranks = sorted(('xx23456789TJQKA'.index(r) for r,s in cards), reverse=True)
@@ -8,7 +7,7 @@ def card_ranks(cards):
 
 def straight(ranks):
     "Return True if the ordered ranks from a 5-card straight."
-    return max(ranks) - min(ranks) == 4 and len(set(ranks)) == 5
+    return (max(ranks) - min(ranks) == 4) and (len(set(ranks)) == 5)
 
 def flush(hand):
     "Return True if all the cards have the same suit"
@@ -42,7 +41,7 @@ def hand_rank(hand):
         return (6, kind(3, ranks), kind(2, ranks))
     elif flush(hand):
         return (5, ranks)
-    elif straight(hand):
+    elif straight(ranks):
         return (4, max(ranks))
     elif kind(3, ranks):
         return (3, kind(3, ranks), ranks)
@@ -79,13 +78,13 @@ def better_hand_rank(hand):
             3 if (3, 1, 1) == counts else
             2 if (2, 1, 1) == counts else
             1 if (2, 1, 1, 1) == counts else
-            0), ranks)
+            0, ranks)
 
 def allmax(iterable, key=None):
     "Return a list of all items equal to the max of the iterable"
     key = key or (lambda x: x)
     maxitem = max(iterable, key=key)
-    return filter(lambda x: x == maxitem, iterable)
+    return [item for sublist in filter(lambda x: x == maxitem, iterable) for item in sublist]
 
 def poker(hands):
     "Return the best hand: poker([hand, ...]) => [hand, ...]"
@@ -94,8 +93,6 @@ def poker(hands):
 def deal(numhands, n=5, deck=[r+s for r in '23456789JQKA' for s in 'SHDC']):
     random.shuffle(deck)
     return [deck[n*i:n*(i+1)] for i in range(numhands)]
-
-print deal(3)
 
 
 def test():
