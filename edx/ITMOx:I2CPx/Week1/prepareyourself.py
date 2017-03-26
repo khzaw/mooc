@@ -2,22 +2,26 @@
 # pi = how much it will improve if h epratcies a lot at the i-th day
 # everyday, either theory or practice
 # at least one of these days should be theoretical, and at least one should be practical
+with open('input.txt', 'r') as inputfile:
+    n = int(inputfile.readline())
+    t = [int(x) for x in inputfile.readline().split(' ')]
+    p = [int(x) for x in inputfile.readline().split(' ')]
 
-with open('input.txt', 'rb') as input_file:
-    n = int(input_file.readline())
-    t = list(map(int, input_file.readline().decode('utf-8').split(' ')))
-    p = list(map(int, input_file.readline().decode('utf-8').split(' ')))
-    total_t = 0
-    total_p = 0
     total = 0
+    min_diff = float('inf')
+    status = 0
+
     for i in range(n):
-        if(p[i] > t[i]):
-            total = total + p[i]
-            total_p = total_p + 1
-        else:
-            total = total + t[i]
-            total_t = total_t + 1
-    print(total, total_t, total_p)
-# with open('output.txt', 'wb') as output_file:
-#     output_file.write(str(total).encode('utf-8'))
-#     output_file.write('\n'.encode('utf-8'))
+        if t[i] > p[i]:
+            status |= 1
+        elif t[i] < p[i]:
+            status |= 2
+        total += max(t[i], p[i])
+        min_diff = min(min_diff, abs(t[i] - p[i]))
+
+if status != 3:
+    total -= min_diff
+
+with open('output.txt', 'w') as output:
+   output.write(str(total))
+   output.write('\n')
