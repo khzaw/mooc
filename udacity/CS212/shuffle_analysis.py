@@ -1,3 +1,4 @@
+# pyright: basic
 from random import randrange
 from collections import defaultdict
 
@@ -16,7 +17,7 @@ def test_shuffler(shuffler, deck="abcd", n=10000):
     print("%s(%s)%s" % (name, deck, ("ok" if ok else "*** BAD ***")))
     print("   ")
     for item, count in sorted(counts.items()):
-        (print("%s:%4.1f" % (item, count * 100.0 / n)),)
+        print("%s:%4.1f" % (item, count * 100.0 / n))
     print()
 
 

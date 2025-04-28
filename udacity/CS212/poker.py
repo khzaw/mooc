@@ -1,19 +1,10 @@
+# pyright: basic
 import random
+import itertools
 from typing import Any
 from collections.abc import Sequence
 
 mydeck: list[str] = [r + s for r in "23456789TJQKA" for s in "SHDC"]
-
-
-# def hand_percentages(n: int = 700 * 1000):
-#     "Sample n random hands and print a table of percentages for each type of hand."
-#     counts = [0] * 9
-#     for i in range(n / 10):
-#         for hand in deal(10):
-#             ranking = hand_rank(hand)[0]
-#             counts[ranking] += 1
-#     for i in reversed(range(9)):
-#         print("%14s: %6.3f %%" % (hand_names[i], 100.0 * counts[i] / n))
 
 
 def deal(numhands: int, n: int = 5, deck: list[str] = mydeck) -> list[list[str]]:
@@ -44,7 +35,7 @@ def flush(hand: Sequence[str]):
     """
     Returns True if the hand is a flush
     """
-    suits = [s for r, s in hand]
+    suits = [s for _, s in hand]
     return len(set(suits)) == 1
 
 
@@ -76,7 +67,7 @@ def card_ranks(cards: Sequence[str]) -> Sequence[int]:
     Returns an ORDERED list of the ranks in a hand (where the order goes from
     highest to lowest rank)
     """
-    ranks = ["--23456789TJQKA".index(r) for r, s in cards]
+    ranks = ["--23456789TJQKA".index(r) for r, _ in cards]
     ranks.sort(reverse=True)
     return [5, 4, 3, 2, 1] if (ranks == [14, 5, 4, 3, 2]) else ranks
 
@@ -121,7 +112,7 @@ def better_hand_rank(hand: Sequence[str]):
     # "Return a value indicating how high the hand ranks."
     # counts is the count of each rank; ranks lists corresponding ranks
     # e.g., '7 T 7 9 7' => counts = (3, 1, 1); ranks = (7, 10, 9)
-    groups = group(["--23456789TJQKA".index(r) for r, s in hand])
+    groups = group(["--23456789TJQKA".index(r) for r, _ in hand])
     counts, ranks = unzip(groups)
     if ranks == (14, 5, 4, 3, 2):
         ranks = (5, 4, 3, 2, 1)
@@ -176,3 +167,36 @@ def test():
     assert hand_rank(sf) == (8, 10)
     assert hand_rank(fk) == (7, 9, 7)
     assert hand_rank(fh) == (6, 10, 7)
+
+
+def best_hand(hand):
+    "From a 7-card hand, return the best 5 card hand."
+    pass
+
+
+def test_best_hand():
+    assert sorted(best_hand("6C 7C 8C 9C TC 5C JS".split())) == [
+        "6C",
+        "7C",
+        "8C",
+        "9C",
+        "TC",
+    ]
+    assert sorted(best_hand("TD TC TH 7C 7D 8C 8S".split())) == [
+        "8C",
+        "8S",
+        "TC",
+        "TD",
+        "TH",
+    ]
+    assert sorted(best_hand("JD TC TH 7C 7D 7S 7H".split())) == [
+        "7C",
+        "7D",
+        "7H",
+        "7S",
+        "JD",
+    ]
+    return "test_best_hand passes"
+
+
+print(test_best_hand())
