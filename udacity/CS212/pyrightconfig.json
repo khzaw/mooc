@@ -1,0 +1,6 @@
+{
+  "typeCheckingMode": "off",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownLambdaType": "none"
+}
