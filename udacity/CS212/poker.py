@@ -14,14 +14,14 @@ def deal(numhands: int, n: int = 5, deck: list[str] = mydeck) -> list[list[str]]
 
 def poker(hands: Sequence[Sequence[str]]):
     "Return the best hand: poker([hand,...]) => hand"
-    return max(hands, key=hand_rank)
+    return allmax(hands, key=hand_rank)
 
 
 def allmax(iterable, key=None) -> list[Any]:
     "Return a list of all items equal to the max of the iterable."
     key = key or (lambda x: x)
-    m = max(map(lambda x: key(x)[0], iterable))
-    return [x for x in iterable if key(x)[0] == m]
+    m = max(map(lambda x: key(x), iterable))
+    return [x for x in iterable if key(x) == m]
 
 
 def straight(ranks: Sequence[int]) -> bool:
@@ -97,21 +97,20 @@ def hand_rank(hand: Sequence[str]):
         return (0, max(ranks), ranks)
 
 
-count_rankings = {
-    (5,): 10,
-    (4, 1): 7,
-    (3, 2): 6,
-    (3, 1, 1): 3,
-    (2, 2, 1): 2,
-    (2, 1, 1, 1): 1,
-    (1, 1, 1, 1, 1): 0,
-}
-
-
 def better_hand_rank(hand: Sequence[str]):
     # "Return a value indicating how high the hand ranks."
     # counts is the count of each rank; ranks lists corresponding ranks
     # e.g., '7 T 7 9 7' => counts = (3, 1, 1); ranks = (7, 10, 9)
+    count_rankings = {
+        (5,): 10,
+        (4, 1): 7,
+        (3, 2): 6,
+        (3, 1, 1): 3,
+        (2, 2, 1): 2,
+        (2, 1, 1, 1): 1,
+        (1, 1, 1, 1, 1): 0,
+    }
+
     groups = group(["--23456789TJQKA".index(r) for r, _ in hand])
     counts, ranks = unzip(groups)
     if ranks == (14, 5, 4, 3, 2):
@@ -127,7 +126,7 @@ def group(items):
     return sorted(groups, reverse=True)
 
 
-def unzip(pairs) -> zip[tuple[Any, ...]]:
+def unzip(pairs):
     return zip(*pairs)
 
 
@@ -171,7 +170,7 @@ def test():
 
 def best_hand(hand):
     "From a 7-card hand, return the best 5 card hand."
-    pass
+    return allmax(list(itertools.combinations(hand, 5)), key=hand_rank)
 
 
 def test_best_hand():
@@ -197,6 +196,54 @@ def test_best_hand():
         "JD",
     ]
     return "test_best_hand passes"
+
+
+def expand_hand(hand):
+    """Replace joker with all possible cards.
+    ?B -> Black joker can be used as any spade or club.
+    ?R -> Red joker can be used as any heart or diamond."""
+    joker_map = {
+        "?R": list(filter(lambda x: x[1] in "HD", mydeck)),
+        "?B": list(filter(lambda x: x[1] in "SC", mydeck)),
+    }
+
+    choices = [joker_map.get(x, [x]) for x in hand]
+    return (h for h in itertools.product(*choices))
+
+
+def best_wild_hand(hand):
+    """Try all values for jokers in all 5-card selections.
+    A joker can take any rank or suit of the same color.
+    ?B -> Black joker can be used as any spade or club
+    ?R -> Red joker can be used as any heart or diamond."""
+
+    expanded_hand = expand_hand(hand)
+    return allmax([next(iter(best_hand(h))) for h in expanded_hand], key=hand_rank)
+
+
+def test_best_wild_hand():
+    assert sorted(best_wild_hand("6C 7C 8C 9C TC 5C ?B".split())) == [
+        "7C",
+        "8C",
+        "9C",
+        "JC",
+        "TC",
+    ]
+    assert sorted(best_wild_hand("TD TC 5H 5C 7C ?R ?B".split())) == [
+        "7C",
+        "TC",
+        "TD",
+        "TH",
+        "TS",
+    ]
+    assert sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split())) == [
+        "7C",
+        "7D",
+        "7H",
+        "7S",
+        "JD",
+    ]
+    return "test_best_wild_hand passes"
 
 
 print(test_best_hand())
